@@ -54,7 +54,7 @@ func NewRoot(st *state.AppState) *Root {
 		newTabEntry(state.TabEvent, "event", tabs.NewEvent(st, eventPublisher)),
 		newTabEntry(state.TabReq, "req", tabs.NewReq(st, pool)),
 		newTabEntry(state.TabPaste, "paste", tabs.NewPaste(st)),
-		newTabEntry(state.TabServe, "serve", tabs.NewPlaceholder("Serve tab coming soon")),
+		newTabEntry(state.TabServe, "serve", tabs.NewServe(st)),
 	}
 	r.tabView.state = st
 	r.tabView.tabs = r.tabs
