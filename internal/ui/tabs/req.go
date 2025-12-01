@@ -68,8 +68,10 @@ type Req struct {
 
 	resultsLabel      basicwidget.Text
 	resultsList       basicwidget.List[string]
+	resultsPanel      basicwidget.Panel
 	resultDetailLabel basicwidget.Text
 	resultDetail      basicwidget.Text
+	resultDetailPanel basicwidget.Panel
 
 	currentFilter nostr.Filter
 	lastFilterErr error
@@ -124,9 +126,9 @@ func (r *Req) Build(_ *guigui.Context, adder *guigui.ChildAdder) error {
 		&r.sendButton,
 		&r.stopButton,
 		&r.resultsLabel,
-		&r.resultsList,
+		&r.resultsPanel,
 		&r.resultDetailLabel,
-		&r.resultDetail,
+		&r.resultDetailPanel,
 	} {
 		adder.AddChild(widget)
 	}
@@ -256,6 +258,12 @@ func (r *Req) Build(_ *guigui.Context, adder *guigui.ChildAdder) error {
 	r.resultDetail.SetAutoWrap(true)
 	r.resultDetail.SetTabular(true)
 	r.resultDetail.SetValue("results will appear here once events arrive")
+	r.resultDetailPanel.SetContent(&r.resultDetail)
+	r.resultDetailPanel.SetContentConstraints(basicwidget.PanelContentConstraintsFixedWidth)
+	r.resultDetailPanel.SetAutoBorder(true)
+	r.resultsPanel.SetContent(&r.resultsList)
+	r.resultsPanel.SetContentConstraints(basicwidget.PanelContentConstraintsFixedWidth)
+	r.resultsPanel.SetAutoBorder(true)
 
 	r.updateFilterPreview()
 	return nil
@@ -275,6 +283,8 @@ func (r *Req) Measure(context *guigui.Context, constraints guigui.Constraints) i
 
 func (r *Req) layoutSpec(context *guigui.Context) guigui.LinearLayout {
 	u := basicwidget.UnitSize(context)
+	resultsListHeight := 24 * u
+	resultDetailHeight := 12 * u
 	sinceRow := guigui.LinearLayout{
 		Direction: guigui.LayoutDirectionHorizontal,
 		Gap:       u / 2,
@@ -336,9 +346,9 @@ func (r *Req) layoutSpec(context *guigui.Context) guigui.LinearLayout {
 			{Widget: &r.relaysInput, Size: guigui.FixedSize(3 * u)},
 			{Layout: buttonsRow},
 			{Widget: &r.resultsLabel},
-			{Widget: &r.resultsList, Size: guigui.FlexibleSize(2)},
+			{Widget: &r.resultsPanel, Size: guigui.FixedSize(resultsListHeight)},
 			{Widget: &r.resultDetailLabel},
-			{Widget: &r.resultDetail, Size: guigui.FlexibleSize(1)},
+			{Widget: &r.resultDetailPanel, Size: guigui.FixedSize(resultDetailHeight)},
 		},
 	}
 }

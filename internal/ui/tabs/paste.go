@@ -28,6 +28,7 @@ type Paste struct {
 	inputText   basicwidget.TextInput
 	outputLabel basicwidget.Text
 	outputText  basicwidget.Text
+	outputPanel basicwidget.Panel
 }
 
 // NewPaste creates a new paste tab widget.
@@ -40,7 +41,7 @@ func (p *Paste) Build(_ *guigui.Context, adder *guigui.ChildAdder) error {
 	adder.AddChild(&p.inputLabel)
 	adder.AddChild(&p.inputText)
 	adder.AddChild(&p.outputLabel)
-	adder.AddChild(&p.outputText)
+	adder.AddChild(&p.outputPanel)
 
 	p.inputLabel.SetValue("Paste an event, filter, npub, nsec, nip05, nevent, or naddr:")
 	p.inputLabel.SetBold(true)
@@ -57,6 +58,9 @@ func (p *Paste) Build(_ *guigui.Context, adder *guigui.ChildAdder) error {
 	p.outputText.SetMultiline(true)
 	p.outputText.SetSelectable(true)
 	p.outputText.SetTabular(true)
+	p.outputPanel.SetContent(&p.outputText)
+	p.outputPanel.SetContentConstraints(basicwidget.PanelContentConstraintsFixedWidth)
+	p.outputPanel.SetAutoBorder(true)
 
 	p.updateOutput()
 
@@ -77,6 +81,7 @@ func (p *Paste) Measure(context *guigui.Context, constraints guigui.Constraints)
 
 func (p *Paste) layoutSpec(context *guigui.Context) guigui.LinearLayout {
 	u := basicwidget.UnitSize(context)
+	maxOutputHeight := 12 * u
 	return guigui.LinearLayout{
 		Direction: guigui.LayoutDirectionVertical,
 		Gap:       u / 2,
@@ -84,7 +89,7 @@ func (p *Paste) layoutSpec(context *guigui.Context) guigui.LinearLayout {
 			{Widget: &p.inputLabel},
 			{Widget: &p.inputText, Size: guigui.FlexibleSize(1)},
 			{Widget: &p.outputLabel},
-			{Widget: &p.outputText, Size: guigui.FlexibleSize(1)},
+			{Widget: &p.outputPanel, Size: guigui.FixedSize(maxOutputHeight)},
 		},
 	}
 }
