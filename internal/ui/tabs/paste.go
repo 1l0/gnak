@@ -47,8 +47,8 @@ func (p *Paste) Build(_ *guigui.Context, adder *guigui.ChildAdder) error {
 
 	p.inputText.SetMultiline(true)
 	p.inputText.SetAutoWrap(true)
-	p.inputText.SetOnValueChanged(func(text string, _ bool) {
-		p.updateOutput(text)
+	p.inputText.SetOnValueChanged(func(_ string, _ bool) {
+		p.updateOutput()
 	})
 
 	p.outputLabel.SetValue("Decoded output")
@@ -58,7 +58,7 @@ func (p *Paste) Build(_ *guigui.Context, adder *guigui.ChildAdder) error {
 	p.outputText.SetSelectable(true)
 	p.outputText.SetTabular(true)
 
-	p.updateOutput("")
+	p.updateOutput()
 
 	return nil
 }
@@ -89,8 +89,9 @@ func (p *Paste) layoutSpec(context *guigui.Context) guigui.LinearLayout {
 	}
 }
 
-func (p *Paste) updateOutput(text string) {
-	p.outputText.SetValue(describeInput(strings.TrimSpace(text)))
+func (p *Paste) updateOutput() {
+	text := strings.TrimSpace(p.inputText.Value())
+	p.outputText.SetValue(describeInput(text))
 }
 
 func describeInput(text string) string {
