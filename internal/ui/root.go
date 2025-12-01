@@ -202,9 +202,8 @@ func (r *Root) Tick(context *guigui.Context, widgetBounds *guigui.WidgetBounds) 
 type tabView struct {
 	guigui.DefaultWidget
 
-	state        *state.AppState
-	tabs         []tabEntry
-	lastSelected state.TabKind
+	state *state.AppState
+	tabs  []tabEntry
 }
 
 func (t *tabView) Build(_ *guigui.Context, adder *guigui.ChildAdder) error {
@@ -225,15 +224,6 @@ func (t *tabView) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBou
 
 func (t *tabView) Tick(context *guigui.Context, _ *guigui.WidgetBounds) error {
 	selected := t.state.SelectedTab()
-	if selected != t.lastSelected {
-		for i := range t.tabs {
-			if t.tabs[i].kind == selected {
-				t.tabs[i].panel.SetScrollOffset(0, 0)
-				break
-			}
-		}
-		t.lastSelected = selected
-	}
 	for i := range t.tabs {
 		context.SetVisible(t.tabs[i].panel, t.tabs[i].kind == selected)
 	}
