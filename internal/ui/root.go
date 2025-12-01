@@ -28,7 +28,7 @@ type Root struct {
 	secretStatus basicwidget.Text
 	generateKey  basicwidget.Button
 	statusLabel  basicwidget.Text
-	tabList      basicwidget.List[state.TabKind]
+	tabControl   basicwidget.SegmentedControl[state.TabKind]
 	tabs         []tabEntry
 	tabView      tabView
 
@@ -78,7 +78,7 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	adder.AddChild(&r.secretStatus)
 	adder.AddChild(&r.generateKey)
 	adder.AddChild(&r.statusLabel)
-	adder.AddChild(&r.tabList)
+	adder.AddChild(&r.tabControl)
 	adder.AddChild(&r.tabView)
 
 	r.secretLabel.SetValue("Private key (hex or nsec)")
@@ -110,20 +110,18 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	r.statusLabel.SetAutoWrap(true)
 	r.statusLabel.SetSelectable(true)
 
-	listItems := make([]basicwidget.ListItem[state.TabKind], len(r.tabs))
+	tabItems := make([]basicwidget.SegmentedControlItem[state.TabKind], len(r.tabs))
 	for i := range r.tabs {
-		listItems[i] = basicwidget.ListItem[state.TabKind]{
+		tabItems[i] = basicwidget.SegmentedControlItem[state.TabKind]{
 			Text:  strings.ToUpper(r.tabs[i].title),
 			Value: r.tabs[i].kind,
 		}
 	}
-	r.tabList.SetStyle(basicwidget.ListStyleSidebar)
-	r.tabList.SetStripeVisible(false)
-	r.tabList.SetItemHeight(basicwidget.UnitSize(context))
-	r.tabList.SetItems(listItems)
-	r.tabList.SelectItemByValue(r.state.SelectedTab())
-	r.tabList.SetOnItemSelected(func(index int) {
-		item, ok := r.tabList.ItemByIndex(index)
+	r.tabControl.SetDirection(basicwidget.SegmentedControlDirectionHorizontal)
+	r.tabControl.SetItems(tabItems)
+	r.tabControl.SelectItemByValue(r.state.SelectedTab())
+	r.tabControl.SetOnItemSelected(func(index int) {
+		item, ok := r.tabControl.ItemByIndex(index)
 		if !ok {
 			return
 		}
@@ -149,11 +147,11 @@ func (r *Root) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds
 	layouter.LayoutWidget(&r.background, widgetBounds.Bounds())
 
 	u := basicwidget.UnitSize(context)
-	contentRow := guigui.LinearLayout{
-		Direction: guigui.LayoutDirectionHorizontal,
-		Gap:       u,
+	contentColumn := guigui.LinearLayout{
+		Direction: guigui.LayoutDirectionVertical,
+		Gap:       u / 2,
 		Items: []guigui.LinearLayoutItem{
-			{Widget: &r.tabList, Size: guigui.FixedSize(8 * u)},
+			{Widget: &r.tabControl},
 			{Widget: &r.tabView, Size: guigui.FlexibleSize(1)},
 		},
 	}
@@ -180,7 +178,7 @@ func (r *Root) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds
 				},
 			},
 			{Widget: &r.secretStatus},
-			{Layout: contentRow, Size: guigui.FlexibleSize(1)},
+			{Layout: contentColumn, Size: guigui.FlexibleSize(1)},
 			{Widget: &r.statusLabel},
 		},
 	}
@@ -190,7 +188,7 @@ func (r *Root) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds
 
 // Tick keeps the UI in sync with shared state.
 func (r *Root) Tick(context *guigui.Context, widgetBounds *guigui.WidgetBounds) error {
-	r.tabList.SelectItemByValue(r.state.SelectedTab())
+	r.tabControl.SelectItemByValue(r.state.SelectedTab())
 
 	r.statusLabel.SetValue(r.state.Status())
 	if errText := r.lastSecretErr; errText != "" {
